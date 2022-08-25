@@ -1,25 +1,45 @@
+const  { Telegraf } = require('telegraf');
 const express = require('express')
-const TelegramBot = require('node-telegram-bot-api')
 
 const token = '5717084656:AAET0Vzk61yjkhEO18yltR1GhvkDYtheZdg'
-const chatId = '-1001751416040'
+const chatId = '-684878853'
 
-const bot = new TelegramBot(token, { polling: true })
+const bot = new Telegraf(token, {polling: true})
 
 const app = express()
 const port = 3030
 
-bot.on("message", (data) => console.log(data))
 
-bot.onText('hello', (data) =>  bot.sendMessage(chatId, data.text))
+bot.on('message', async (ctx) => {
+  console.log(ctx.message.message_id)
+  if(ctx.message.text) {
+    const str = ctx.message.text.toLowerCase();
+    if(str.includes('iptv') || str.includes('playlist')|| str.includes('77')){
+      ctx.deleteMessage(ctx.message.message_id)
+
+      //ctx.telegram.editMessageCaption(chatId, 350,350,350); 
+    }
+  }
+  
+
+   if(ctx.message.document){
+      const isPlaylist = ctx.message.document.file_name.includes('.m3u')
+      if (isPlaylist){
+        ctx.reply(`Hello ${ctx.update.message.from.first_name} playlists banned in this group `)
+        ctx.deleteMessage(ctx.message.message_id)
+      }
+   } 
+  })
+
+bot.launch()
 
 
-bot.sendMessage(chatId, 'hello')
 
 app.get('/', (req, res) => {
-  res.send('Hello World! port 3030')
+  res.send('Hello World!')
 })
 
+
 app.listen(port, () => {
-  console.log(`Example app listening on port ${port}`)
+  console.log(`Server listening on port ${port}`)
 })
