@@ -3,31 +3,33 @@ const express = require('express')
 
 const token = '5717084656:AAET0Vzk61yjkhEO18yltR1GhvkDYtheZdg'
 
-const chatId = '-684878853'
-
 const bot = new Telegraf(token, {polling: true})
 
 const app = express()
 const port = 3030
 
 const  RegExpLink = /(([a-z]+:\/\/)?(([a-z0-9\-]+\.)+([a-z]{2}|aero|arpa|biz|com|coop|edu|gov|info|int|jobs|mil|museum|name|nato|net|org|pro|travel|local|internal))(:[0-9]{1,5})?(\/[a-z0-9_\-\.~]+)*(\/([a-z0-9_\-\.]*)(\?[a-z0-9+_\-\.%=&amp;]*)?)?(#[a-zA-Z0-9!$&'()*+.=-_~:@/?]*)?)(\s+|$)/gi;
-
+const idForBan = [];
 
 bot.on('message', async (ctx) => {
+    console.log(ctx.message.from)
+
 
   if(ctx.message.text) {
     const str = ctx.message.text.toLowerCase();
+    console.log(str)
+
     if(str.includes('iptv')){
         ctx.reply(`Message from ${ctx.update.message.from.first_name} edited by BOT
-         ${ctx.message.text.replaceAll('iptv', '****')}`)
+         ${str.replaceAll('iptv', '****')}`)
         ctx.deleteMessage(ctx.message.message_id)
         return
 
     }
 
-    if(str.includes('iptv')){
+    if(str.includes('шаринг')){
         ctx.reply(`Message from ${ctx.update.message.from.first_name} edited by BOT
-         ${ctx.message.text.replaceAll('шаринг', '****')}`)
+         ${str.replaceAll('шаринг', '****')}`)
         ctx.deleteMessage(ctx.message.message_id)
         return
 
@@ -35,21 +37,31 @@ bot.on('message', async (ctx) => {
 
     if(str.includes('playlist')){
         ctx.reply(`Message from ${ctx.update.message.from.first_name} edited by BOT
-         ${ctx.message.text.replaceAll('playlist', '****')}`)
+         ${str.replaceAll('playlist', '****')}`)
         ctx.deleteMessage(ctx.message.message_id)
 
     }
 
 
-    if(RegExpLink.test(str)){
-        console.log(RegExpLink.test(str))
+    if(RegExpLink.test(str) && (ctx.message.from.id !== 432003706)){
+        console.log(ctx.message.from)
         ctx.reply(`Message from ${ctx.update.message.from.first_name} edited by BOT
         ${ctx.message.text.replace(RegExpLink, 'http****.***')}`)
+       
+
+        if(idForBan.includes(ctx.message.from.id)){
+            bot.telegram.banChatMember(ctx.message.chat.id, ctx.message.from.id)
+
+        }
+
+        idForBan.push(ctx.message.from.id)
         ctx.deleteMessage(ctx.message.message_id)
         return
 
      }
   }
+
+
 
    if(ctx.message.document){
       const isPlaylist = ctx.message.document.file_name.includes('.m3u')
@@ -59,6 +71,8 @@ bot.on('message', async (ctx) => {
       }
    } 
   })
+
+  console.log(idForBan)
 
 bot.launch()
 
